@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="POTA on the GO: canli spot takibi, cevrimdisi park arama ve hizli aktivasyon goruntuleme icin mobil uygulama." />
+  <title>POTA on the GO | Parks on the Air Companion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Manrope:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="grain"></div>
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="POTA on the GO ana sayfa">
+      <span class="brand-mark" aria-hidden="true">POTA</span>
+      <span class="brand-name">on the GO</span>
+    </a>
+    <nav class="site-nav" aria-label="Ana menu">
+      <a href="#ozellikler">Ozellikler</a>
+      <a href="#akisi">Is Akisi</a>
+      <a href="#fark">Neden Farkli</a>
+      <a href="#indir">Indir</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero container reveal" style="--delay: 0ms;">
+      <div class="hero-copy">
+        <p class="eyebrow">Outdoor-First Ham Radio Companion</p>
+        <h1>
+          Spotlari yakala.<br />
+          Parki kacirma.<br />
+          Sinyali kovala.
+        </h1>
+        <p class="hero-text">
+          POTA on the GO, Parks on the Air aktivasyonlarina saha odakli hiz kazandirir.
+          Canli spot akislarini takip et, cevrimdisi park veritabani ile internet yokken bile ilerle.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="https://github.com/kaanyaren/POTAontheGO" target="_blank" rel="noreferrer">GitHub Repo</a>
+          <a class="btn btn-ghost" href="#indir">Lansman Bildirimi Al</a>
+        </div>
+        <div class="hero-tags" aria-label="Canli ozellik etiketleri">
+          <span>Live Spot Feed</span>
+          <span>Offline Park Data</span>
+          <span>Fast Filters</span>
+        </div>
+      </div>
+
+      <div class="hero-visual reveal" style="--delay: 180ms;">
+        <article class="phone-card">
+          <header>
+            <p>Now Spotting</p>
+            <span class="dot"></span>
+          </header>
+          <div class="spot-row">
+            <div>
+              <strong>N1XX</strong>
+              <p>K-1234 Yellowstone</p>
+            </div>
+            <span>7.032 CW</span>
+          </div>
+          <div class="spot-row">
+            <div>
+              <strong>TA2ABC</strong>
+              <p>TR-0051 Uludag NP</p>
+            </div>
+            <span>14.255 SSB</span>
+          </div>
+          <div class="spot-row">
+            <div>
+              <strong>W1AW</strong>
+              <p>K-4567 Grand Canyon</p>
+            </div>
+            <span>10.118 CW</span>
+          </div>
+          <footer>
+            <small>refresh: 11 sec ago</small>
+            <button type="button" aria-label="Yenile">Refresh</button>
+          </footer>
+        </article>
+
+        <article class="radar-card">
+          <h2>Field Radar</h2>
+          <p>Nearby parks and activations</p>
+          <div class="radar-grid" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="metrics container reveal" style="--delay: 90ms;">
+      <article>
+        <p class="metric-value">Offline-First</p>
+        <p class="metric-label">Tum park katalogu cihazda</p>
+      </article>
+      <article>
+        <p class="metric-value">Real-Time</p>
+        <p class="metric-label">Anlik spot akis guncellemesi</p>
+      </article>
+      <article>
+        <p class="metric-value">Cross-Platform</p>
+        <p class="metric-label">iOS + Android tek deneyim</p>
+      </article>
+    </section>
+
+    <section id="ozellikler" class="features container">
+      <header class="section-head reveal" style="--delay: 50ms;">
+        <p class="eyebrow">Core Capabilities</p>
+        <h2>Park avinda hiz kazandiran moduller</h2>
+      </header>
+
+      <div class="feature-grid">
+        <article class="feature-card reveal" style="--delay: 80ms;">
+          <p class="kicker">01</p>
+          <h3>Canli Spot Takibi</h3>
+          <p>Frekans, mod ve referans bazli akisi takip et. Son spotlar tek bakista gorunsun.</p>
+        </article>
+        <article class="feature-card reveal" style="--delay: 160ms;">
+          <p class="kicker">02</p>
+          <h3>Cevrimdisi Park Arsivi</h3>
+          <p>`all_parks_ext.csv` senkronizasyonu ile dagda, ormanda, yolda internet yoksa bile park bul.</p>
+        </article>
+        <article class="feature-card reveal" style="--delay: 240ms;">
+          <p class="kicker">03</p>
+          <h3>Aktivasyon Gecmisi</h3>
+          <p>Park detayinda tarihceyi gor, daha once kim ne zaman aktive etmis aninda analiz et.</p>
+        </article>
+        <article class="feature-card reveal" style="--delay: 320ms;">
+          <p class="kicker">04</p>
+          <h3>Akilli Filtreler</h3>
+          <p>CW, SSB, band ve bolge filtreleri ile hedef spotlari saniyeler icinde sec.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="akisi" class="process container reveal" style="--delay: 90ms;">
+      <div class="section-head">
+        <p class="eyebrow">How It Works</p>
+        <h2>Uc adimlik sahada kullanima hazir akis</h2>
+      </div>
+      <ol>
+        <li>
+          <span>1</span>
+          <div>
+            <h3>Spot akisina baglan</h3>
+            <p>Uygulamayi ac, canli feed ile o an aktif operatorleri aninda gor.</p>
+          </div>
+        </li>
+        <li>
+          <span>2</span>
+          <div>
+            <h3>Park hedefini sabitle</h3>
+            <p>Haritadan veya kodla park sec, aktivasyon gecmisini tek ekranda incele.</p>
+          </div>
+        </li>
+        <li>
+          <span>3</span>
+          <div>
+            <h3>Sahada devam et</h3>
+            <p>Baglanti dussa bile cihazdaki park verisiyle rota ve karar surecini surdur.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section id="fark" class="difference container reveal" style="--delay: 120ms;">
+      <div class="difference-copy">
+        <p class="eyebrow">Why It Feels Different</p>
+        <h2>Uygulama degil, saha ritmi</h2>
+        <p>
+          POTA on the GO, masa basi dashboard mantigi yerine arazi kosullarina uygun hizli,
+          net ve minimum tik gerektiren bir karar akisi sunar.
+        </p>
+      </div>
+      <pre class="terminal-card" aria-label="Ornek terminal ciktisi">
+<span>$ sync parks --source pota.app/all_parks_ext.csv</span>
+<span>records: 45239 | cached: true</span>
+<span>$ watch spots --mode cw --band 40m</span>
+<span>TA2ABC @ TR-0051   7.023</span>
+<span>N1XX   @ K-1234   7.032</span>
+<span class="accent">status: field-ready</span>
+      </pre>
+    </section>
+
+    <section id="indir" class="cta container reveal" style="--delay: 140ms;">
+      <p class="eyebrow">Launch Window</p>
+      <h2>POTA on the GO yayinlandiginda ilk sen haberdar ol</h2>
+      <p>Lansman duyurusu, beta test ve gelistirme notlari icin projeyi GitHub uzerinden takip et.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="https://github.com/kaanyaren/POTAontheGO" target="_blank" rel="noreferrer">Projeyi Takip Et</a>
+        <a class="btn btn-ghost" href="https://github.com/kaanyaren/POTAontheGO/issues" target="_blank" rel="noreferrer">Issue Ac</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>POTA on the GO</p>
+    <p>Built for Parks on the Air operators</p>
+    <p><span id="year"></span> | kaanyaren</p>
+  </footer>
+
+  <script src="./script.js"></script>
+</body>
+</html>
