@@ -141,6 +141,33 @@ body {
   color: var(--brand);
 }
 
+/* Top-center shortcut to the web application */
+.app-link {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  text-decoration: none;
+  font-weight: 700;
+  background: var(--accent-soft);
+  color: var(--brand);
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 0.92rem;
+  z-index: 30;
+  box-shadow: 0 6px 18px rgba(15, 42, 38, 0.06);
+}
+
+@media (max-width: 760px) {
+  .app-link {
+    position: static;
+    transform: none;
+    margin: 0.45rem auto 0;
+    display: block;
+  }
+}
+
 main {
   padding-bottom: 4rem;
 }
