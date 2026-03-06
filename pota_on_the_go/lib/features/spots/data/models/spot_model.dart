@@ -13,9 +13,9 @@ class SpotModel {
   late String frequency;
   late String band;
   late String mode;
-  
+
   @Index()
   late String reference;
-  
+
   late DateTime spotTime;
 }

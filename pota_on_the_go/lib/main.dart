@@ -1,163 +1,238 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 import 'core/database/isar_helper.dart';
+import 'core/theme/app_theme_controller.dart';
+import 'features/home/presentation/screens/home_shell.dart';
+import 'core/widgets/double_back_to_close_app.dart';
 import 'features/parks/data/models/park_model.dart';
 import 'features/parks/data/repositories/park_sync_repository.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+final appBootstrapProvider = FutureProvider<void>((ref) async {
   await IsarHelper.init();
-  
-  runApp(
-    const ProviderScope(
-      child: MyApp(),
-    ),
-  );
+  final count = await IsarHelper.isar.parkModels.count();
+
+  if (count == 0) {
+    await ref.read(parkSyncRepositoryProvider).syncParksFromCsv();
+  }
+});
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+const _brandGreen = Color(0xFF2F7F33);
+const _lightBackground = Color(0xFFF7FBF7);
+const _darkBackground = Color(0xFF141E15);
+
+// Cache the text theme to avoid rebuilding on every theme build
+final _cachedTextTheme = GoogleFonts.spaceGroteskTextTheme();
+
+// Apply weight normalization once
+TextTheme get _normalizedSpaceGroteskTextTheme => _cachedTextTheme.copyWith(
+  displayLarge: _normalizeSpaceGroteskWeight(_cachedTextTheme.displayLarge),
+  displayMedium: _normalizeSpaceGroteskWeight(_cachedTextTheme.displayMedium),
+  displaySmall: _normalizeSpaceGroteskWeight(_cachedTextTheme.displaySmall),
+  headlineLarge: _normalizeSpaceGroteskWeight(_cachedTextTheme.headlineLarge),
+  headlineMedium: _normalizeSpaceGroteskWeight(_cachedTextTheme.headlineMedium),
+  headlineSmall: _normalizeSpaceGroteskWeight(_cachedTextTheme.headlineSmall),
+  titleLarge: _normalizeSpaceGroteskWeight(_cachedTextTheme.titleLarge),
+  titleMedium: _normalizeSpaceGroteskWeight(_cachedTextTheme.titleMedium),
+  titleSmall: _normalizeSpaceGroteskWeight(_cachedTextTheme.titleSmall),
+  bodyLarge: _normalizeSpaceGroteskWeight(_cachedTextTheme.bodyLarge),
+  bodyMedium: _normalizeSpaceGroteskWeight(_cachedTextTheme.bodyMedium),
+  bodySmall: _normalizeSpaceGroteskWeight(_cachedTextTheme.bodySmall),
+  labelLarge: _normalizeSpaceGroteskWeight(_cachedTextTheme.labelLarge),
+  labelMedium: _normalizeSpaceGroteskWeight(_cachedTextTheme.labelMedium),
+  labelSmall: _normalizeSpaceGroteskWeight(_cachedTextTheme.labelSmall),
+);
+
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeModeAsync = ref.watch(appThemeProvider);
+    final themeMode = themeModeAsync.asData?.value ?? ThemeMode.system;
+
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      title: 'POTA on the GO',
+      themeMode: themeMode,
+      theme: _buildTheme(Brightness.light),
+      darkTheme: _buildTheme(Brightness.dark),
+      home: const AppBootstrapGate(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+ThemeData _buildTheme(Brightness brightness) {
+  final isDark = brightness == Brightness.dark;
+  final scheme =
+      ColorScheme.fromSeed(
+        seedColor: _brandGreen,
+        brightness: brightness,
+      ).copyWith(
+        primary: _brandGreen,
+        surface: isDark ? const Color(0xFF18231A) : Colors.white,
+        surfaceContainer: isDark
+            ? const Color(0xFF1F2C20)
+            : const Color(0xFFF0F6F0),
+        surfaceContainerHigh: isDark
+            ? const Color(0xFF273528)
+            : const Color(0xFFE8F1E8),
+        outline: isDark ? const Color(0xFF455444) : const Color(0xFFD5E1D5),
+        shadow: Colors.black,
+      );
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+  final base = ThemeData(
+    useMaterial3: true,
+    brightness: brightness,
+    colorScheme: scheme,
+    scaffoldBackgroundColor: isDark ? _darkBackground : _lightBackground,
+    visualDensity: VisualDensity.standard,
+  );
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+  final textTheme = _normalizedSpaceGroteskTextTheme;
 
-  final String title;
+  final roundedShape = RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(24),
+    side: BorderSide(color: scheme.outline.withValues(alpha: 0.55)),
+  );
 
-  @override
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-  bool _isSyncing = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _syncParks();
-  }
-
-  Future<void> _syncParks() async {
-    setState(() => _isSyncing = true);
-    try {
-      // Basic check if we already have parks
-      final isar = IsarHelper.isar;
-      final count = await isar.parkModels.count();
-      if (count < 1000) {
-        if (!mounted) return;
-        // use a ProviderContainer to read the provider without ref inside State
-        final container = ProviderScope.containerOf(context, listen: false);
-        await container.read(parkSyncRepositoryProvider).syncParksFromCsv();
-      }
-    } catch (e) {
-      debugPrint('Sync failed: \$e');
-    } finally {
-      if (mounted) setState(() => _isSyncing = false);
-    }
-  }
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+  return base.copyWith(
+    textTheme: textTheme,
+    appBarTheme: AppBarTheme(
+      centerTitle: false,
+      backgroundColor: Colors.transparent,
+      foregroundColor: scheme.onSurface,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+      titleTextStyle: textTheme.titleLarge?.copyWith(
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.2,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (_isSyncing) ...[
-              const CircularProgressIndicator(),
-              const SizedBox(height: 16),
-              const Text('Park veritabanı eşitleniyor...\n Lütfen bekleyin (İnternet gerekir)'),
-              const SizedBox(height: 32),
-            ] else ...[
-              const Text('POTA Veritabanı Hazır! Mimarinin geri kalanını entegre edebilirsiniz.'),
-            ],
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+    ),
+    cardTheme: CardThemeData(
+      color: scheme.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      shape: roundedShape,
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: scheme.surface.withValues(alpha: 0.94),
+      hintStyle: textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
+      prefixIconColor: scheme.primary,
+      suffixIconColor: scheme.onSurfaceVariant,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(22),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(22),
+        borderSide: BorderSide(color: scheme.outline.withValues(alpha: 0.4)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(22),
+        borderSide: BorderSide(color: scheme.primary, width: 1.2),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+    ),
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: isDark
+          ? const Color(0xFF223024)
+          : const Color(0xFF223A25),
+      contentTextStyle: textTheme.bodyMedium?.copyWith(color: Colors.white),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: scheme.primary,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      ),
+    ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: ButtonStyle(
+        padding: WidgetStateProperty.all(
+          const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        ),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+    ),
+    dividerTheme: DividerThemeData(
+      color: scheme.outline.withValues(alpha: 0.35),
+      thickness: 1,
+      space: 1,
+    ),
+  );
+}
+
+TextStyle? _normalizeSpaceGroteskWeight(TextStyle? style) {
+  if (style == null) {
+    return null;
+  }
+
+  final weight = style.fontWeight ?? FontWeight.w400;
+  final normalizedWeight = weight.value >= FontWeight.w600.value
+      ? FontWeight.w700
+      : FontWeight.w400;
+
+  return style.copyWith(fontWeight: normalizedWeight);
+}
+
+class AppBootstrapGate extends ConsumerWidget {
+  const AppBootstrapGate({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bootstrapAsync = ref.watch(appBootstrapProvider);
+
+    return bootstrapAsync.when(
+      data: (_) => DoubleBackToCloseApp(child: const HomeShell()),
+      loading: () => const Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Park veritabanı hazırlanıyor...'),
+            ],
+          ),
+        ),
+      ),
+      error: (error, _) => Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline, size: 40),
+                const SizedBox(height: 12),
+                Text(
+                  'Başlatma sırasında hata oluştu:\n$error',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                FilledButton.icon(
+                  onPressed: () => ref.invalidate(appBootstrapProvider),
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Tekrar dene'),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

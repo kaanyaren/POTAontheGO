@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Home Map &amp; Feed Overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2f7f33",
+                        "background-light": "#F7FBF7",
+                        "background-dark": "#141e15",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen antialiased">
+<div class="relative flex h-auto min-h-screen w-full max-w-[480px] mx-auto flex-col group/design-root overflow-hidden border-x border-slate-200 dark:border-slate-800">
+<div class="absolute inset-0 z-0 bg-cover bg-center" data-alt="Full screen interactive map view" data-location="Yosemite National Park" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB_XM9ThCbI7NxgMAnhPVRIEKyZnau7TyJ5sNhhKOqb6GrRRmmlGECQmYtQKs7SULxd88ENpLvz4lXcIpJHNW5eQKtsrhfLvqod1ynxKuHxO8dOhXTyREiYJLxDnriGOID7QeignNkye7wvo2GFBWZux52ddWzhVj9NjtZNNmCcCD87je66-QDnIfgCmbCLMnWzlNnFMkgSLnwRuvFsAucP0RAOzKcLNSBrglZB_kkTeuSDzjmQEQw0GAlgC-6PibCY2Y8nfLXCQk4");'>
+<div class="absolute top-[30%] left-[40%] flex items-center justify-center size-10 bg-background-light rounded-full border-2 border-primary shadow-md">
+<span class="material-symbols-outlined text-primary text-xl">park</span>
+</div>
+<div class="absolute top-[50%] left-[20%] flex items-center justify-center size-10 bg-background-light rounded-full border-2 border-primary shadow-md">
+<span class="material-symbols-outlined text-primary text-xl">park</span>
+</div>
+<div class="absolute top-[60%] left-[70%] flex items-center justify-center size-10 bg-background-light rounded-full border-2 border-primary shadow-md">
+<span class="material-symbols-outlined text-primary text-xl">park</span>
+</div>
+</div>
+<div class="relative z-10 flex flex-col h-full flex-1 justify-between pointer-events-none">
+<div class="px-4 pt-12 pb-4 pointer-events-auto">
+<label class="flex flex-col h-14 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] rounded-xl bg-background-light dark:bg-slate-800">
+<div class="flex w-full flex-1 items-stretch rounded-xl h-full">
+<div class="text-primary flex items-center justify-center pl-4 rounded-l-xl">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-slate-900 dark:text-slate-100 focus:outline-0 focus:ring-0 border-none bg-transparent h-full placeholder:text-slate-500 px-4 pl-3 text-base font-normal leading-normal" placeholder="Search parks..." value=""/>
+</div>
+</label>
+</div>
+<div class="flex flex-col items-end px-4 gap-3 pointer-events-auto mb-32">
+<div class="flex flex-col gap-px bg-slate-200 dark:bg-slate-700 rounded-lg overflow-hidden shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)]">
+<button class="flex size-11 items-center justify-center bg-background-light dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-slate-700 dark:text-slate-300">add</span>
+</button>
+<button class="flex size-11 items-center justify-center bg-background-light dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-slate-700 dark:text-slate-300">remove</span>
+</button>
+</div>
+<button class="flex size-11 items-center justify-center rounded-lg bg-background-light dark:bg-slate-800 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-slate-700 dark:text-slate-300">my_location</span>
+</button>
+</div>
+<div class="absolute bottom-[88px] right-4 z-20 pointer-events-auto">
+<button class="flex size-14 items-center justify-center rounded-2xl bg-primary text-white shadow-[0_4px_6px_-1px_rgba(47,127,51,0.4),0_2px_4px_-1px_rgba(47,127,51,0.2)] hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</div>
+<div class="flex flex-col justify-end items-stretch pointer-events-auto mt-auto">
+<div class="flex flex-col items-stretch bg-background-light dark:bg-slate-900 rounded-t-3xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+<button class="flex h-8 w-full items-center justify-center">
+<div class="h-1.5 w-12 rounded-full bg-slate-300 dark:bg-slate-600"></div>
+</button>
+<div class="px-5 pb-6">
+<h2 class="text-lg font-bold mb-4 text-slate-800 dark:text-slate-100">Recent Feed</h2>
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-4 bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+<div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-12">
+<span class="material-symbols-outlined">cell_tower</span>
+</div>
+<div class="flex flex-col justify-center flex-1 min-w-0">
+<p class="text-slate-900 dark:text-slate-100 text-sm font-semibold leading-tight line-clamp-1">K-1234 Yellowstone</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-normal leading-tight mt-0.5 line-clamp-1">Activated by N0CALL • 2m ago</p>
+</div>
+</div>
+<div class="flex items-center gap-4 bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+<div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-12">
+<span class="material-symbols-outlined">campaign</span>
+</div>
+<div class="flex flex-col justify-center flex-1 min-w-0">
+<p class="text-slate-900 dark:text-slate-100 text-sm font-semibold leading-tight line-clamp-1">K-4567 Grand Canyon</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-normal leading-tight mt-0.5 line-clamp-1">Spotted W1AW on 14.045 • 15m ago</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="relative z-30 flex gap-2 border-t border-slate-200 dark:border-slate-800 bg-background-light dark:bg-slate-900 px-4 pb-6 pt-3 mt-auto">
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-primary" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">map</span>
+</div>
+<p class="text-[10px] font-bold leading-normal tracking-wide uppercase">Map</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined">list_alt</span>
+</div>
+<p class="text-[10px] font-semibold leading-normal tracking-wide uppercase">Spots</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined">person</span>
+</div>
+<p class="text-[10px] font-semibold leading-normal tracking-wide uppercase">Profile</p>
+</a>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Flutter Analyze Spots Screen",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"analyze",
+				"lib/features/spots/presentation/screens/spots_screen.dart"
+			],
+			"isBackground": false
+		}
+	]
+}

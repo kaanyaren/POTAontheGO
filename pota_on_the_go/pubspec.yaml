@@ -2,7 +2,7 @@ name: pota_on_the_go
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -39,9 +39,14 @@ dependencies:
   isar: ^3.1.0+1
   isar_flutter_libs: ^3.1.0+1
   path_provider: ^2.1.5
+  shared_preferences: ^2.5.3
   flutter_map: ^8.2.2
   latlong2: ^0.9.1
+  geolocator: ^14.0.2
   csv: ^7.2.0
+  xml: ^6.5.0
+  google_fonts: ^6.3.2
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:
@@ -55,13 +60,13 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   build_runner: ^2.4.13
   isar_generator: ^3.1.0+1
+  flutter_launcher_icons: ^0.11.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -102,3 +107,7 @@ dependency_overrides:
   matcher: ^0.12.16
   test_api: ^0.7.3
 
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/POTAontheGoLogo.png"

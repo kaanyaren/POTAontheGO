@@ -1,9 +1,12 @@
 import 'package:dio/dio.dart';
 
 class DioClient {
+  // Singleton instance
+  static DioClient? _instance;
   late final Dio _dio;
 
-  DioClient() {
+  // Private constructor
+  DioClient._() {
     _dio = Dio(
       BaseOptions(
         baseUrl: 'https://api.pota.app/',
@@ -32,6 +35,12 @@ class DioClient {
         },
       ),
     );
+  }
+
+  // Factory constructor for singleton
+  factory DioClient() {
+    _instance ??= DioClient._();
+    return _instance!;
   }
 
   Dio get dio => _dio;
