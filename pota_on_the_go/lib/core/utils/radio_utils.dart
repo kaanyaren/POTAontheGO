@@ -1,8 +1,13 @@
+final _frequencyRegex = RegExp(r'(\d+[\.,]?\d*)');
+final _trailingZerosRegex = RegExp(r'0+$');
+final _trailingDotRegex = RegExp(r'\.$');
+final _nonAlphaNumDotRegex = RegExp(r'[^A-Z0-9.]');
+
 double? tryParseFrequencyMHz(String rawFrequency) {
   final trimmed = rawFrequency.trim();
   if (trimmed.isEmpty) return null;
 
-  final match = RegExp(r'(\d+[\.,]?\d*)').firstMatch(trimmed);
+  final match = _frequencyRegex.firstMatch(trimmed);
   final token = match?.group(1)?.replaceAll(',', '.');
   if (token == null || token.isEmpty) return null;
 
@@ -52,15 +57,15 @@ String formatFrequencyLabel(String rawFrequency) {
       : 4;
   final formatted = parsed
       .toStringAsFixed(precision)
-      .replaceFirst(RegExp(r'0+$'), '')
-      .replaceFirst(RegExp(r'\.$'), '');
+      .replaceFirst(_trailingZerosRegex, '')
+      .replaceFirst(_trailingDotRegex, '');
 
   return formatted;
 }
 
 String _normalizeBandHint(String rawBand) {
   final compact = rawBand.trim().toUpperCase().replaceAll(
-    RegExp(r'[^A-Z0-9.]'),
+    _nonAlphaNumDotRegex,
     '',
   );
   if (compact.isEmpty) {

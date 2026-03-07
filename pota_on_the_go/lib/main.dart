@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'core/database/isar_helper.dart';
 import 'core/theme/app_theme_controller.dart';
@@ -27,8 +26,11 @@ const _brandGreen = Color(0xFF2F7F33);
 const _lightBackground = Color(0xFFF7FBF7);
 const _darkBackground = Color(0xFF141E15);
 
-// Cache the text theme to avoid rebuilding on every theme build
-final _cachedTextTheme = GoogleFonts.spaceGroteskTextTheme();
+// Cache a local text theme to keep startup fully offline-safe.
+final _cachedTextTheme = ThemeData(
+  brightness: Brightness.light,
+  fontFamily: 'SpaceGrotesk',
+).textTheme;
 
 // Apply weight normalization once
 TextTheme get _normalizedSpaceGroteskTextTheme => _cachedTextTheme.copyWith(
@@ -49,6 +51,10 @@ TextTheme get _normalizedSpaceGroteskTextTheme => _cachedTextTheme.copyWith(
   labelSmall: _normalizeSpaceGroteskWeight(_cachedTextTheme.labelSmall),
 );
 
+// Cache theme objects so they are not recomputed on every rebuild.
+final _lightTheme = _buildTheme(Brightness.light);
+final _darkTheme = _buildTheme(Brightness.dark);
+
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
@@ -58,10 +64,10 @@ class MyApp extends ConsumerWidget {
     final themeMode = themeModeAsync.asData?.value ?? ThemeMode.system;
 
     return MaterialApp(
-      title: 'POTA on the GO',
+      title: 'POTAontheGO',
       themeMode: themeMode,
-      theme: _buildTheme(Brightness.light),
-      darkTheme: _buildTheme(Brightness.dark),
+      theme: _lightTheme,
+      darkTheme: _darkTheme,
       home: const AppBootstrapGate(),
     );
   }
@@ -94,7 +100,9 @@ ThemeData _buildTheme(Brightness brightness) {
     visualDensity: VisualDensity.standard,
   );
 
-  final textTheme = _normalizedSpaceGroteskTextTheme;
+  final textTheme = _normalizedSpaceGroteskTextTheme.apply(
+    fontFamily: 'SpaceGrotesk',
+  );
 
   final roundedShape = RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(24),
@@ -103,6 +111,7 @@ ThemeData _buildTheme(Brightness brightness) {
 
   return base.copyWith(
     textTheme: textTheme,
+    primaryTextTheme: textTheme,
     appBarTheme: AppBarTheme(
       centerTitle: false,
       backgroundColor: Colors.transparent,

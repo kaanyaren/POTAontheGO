@@ -19,22 +19,7 @@ class DioClient {
       ),
     );
 
-    _dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) {
-          // Log request or add tokens if needed later
-          return handler.next(options);
-        },
-        onResponse: (response, handler) {
-          // Log or manipulate response
-          return handler.next(response);
-        },
-        onError: (DioException e, handler) {
-          // Centralized error handling
-          return handler.next(e);
-        },
-      ),
-    );
+    // Interceptors removed: empty pass-through interceptors add overhead.
   }
 
   // Factory constructor for singleton

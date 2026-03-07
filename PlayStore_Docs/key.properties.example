@@ -1,0 +1,7 @@
+# Example key.properties for signing
+# Copy this to android/key.properties and fill in your keystore details.
+
+storePassword=<your-keystore-password>
+keyPassword=<your-key-password>
+keyAlias=<your-key-alias>
+storeFile=<path-to-your-keystore.jks>

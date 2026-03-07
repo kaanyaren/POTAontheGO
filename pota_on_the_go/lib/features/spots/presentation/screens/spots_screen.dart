@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/presentation/providers/nav_bar_metrics_provider.dart';
 import '../../../../core/utils/country_utils.dart';
 import '../../../../core/utils/radio_utils.dart';
 import '../../../home/presentation/providers/home_shell_providers.dart';
+import '../../../callsigns/presentation/screens/callsign_info_screen.dart';
 import '../../../parks/data/repositories/park_lookup_repository.dart';
 import '../../../parks/presentation/providers/park_local_provider.dart';
 import '../../data/models/spot_model.dart';
 import '../../data/repositories/spot_repository.dart';
 
 const _filterChipRadius = 22.0;
-const _compactMenuItemHeight = 36.0;
-const _collapsedFilterBarHeight = 78.0;
-const _expandedFilterBarHeight = 146.0;
+const _compactMenuItemHeight = 34.0;
+const _collapsedFilterBarHeight = 66.0;
+const _expandedFilterBarHeight = 106.0;
+const _unknownModeLabel = 'UNK';
+const _allFilterValue = '__all__';
 
 class SpotsScreen extends ConsumerStatefulWidget {
   const SpotsScreen({super.key});
@@ -103,8 +105,8 @@ class _SpotsScreenState extends ConsumerState<SpotsScreen>
     final spotsAsync = ref.watch(currentSpotsProvider);
     final parksAsync = ref.watch(localParksProvider);
     final bottomSafePadding = MediaQuery.paddingOf(context).bottom;
-    const refreshRightInset = 8.0;
-    const refreshButtonSize = 58.0;
+    const refreshRightInset = 14.0;
+    const refreshButtonSize = 52.0;
     const navBarBottomInset = 14.0;
 
     final parkNameByReference = {
@@ -157,6 +159,7 @@ class _SpotsScreenState extends ConsumerState<SpotsScreen>
                     );
                     final bandOptions = _buildOptions(
                       sortedSpots.map(_bandLabelForSpot),
+                      comparator: _compareBandLabelsDescending,
                     );
 
                     final filteredSpots = sortedSpots
@@ -180,7 +183,7 @@ class _SpotsScreenState extends ConsumerState<SpotsScreen>
                       physics: const AlwaysScrollableScrollPhysics(),
                       slivers: [
                         SliverPadding(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                           sliver: SliverPersistentHeader(
                             pinned: true,
                             delegate: _FilterBarSliverDelegate(
@@ -297,6 +300,7 @@ class _SpotsScreenState extends ConsumerState<SpotsScreen>
         ValueListenableBuilder<double>(
           valueListenable: bottomNavBarHeightNotifier,
           builder: (context, bottomNavBarHeight, _) {
+            final theme = Theme.of(context);
             final navBarHeightWithoutSafe =
                 (bottomNavBarHeight - bottomSafePadding).clamp(0.0, 200.0);
             final centeredOffsetWithinNav =
@@ -319,10 +323,6 @@ class _SpotsScreenState extends ConsumerState<SpotsScreen>
                     end: Alignment.bottomRight,
                     colors: [Color(0xFF4E9A52), Color(0xFF2E7F32)],
                   ),
-                  border: Border.all(
-                    color: const Color(0xFFE6EFE6),
-                    width: 1.8,
-                  ),
                   boxShadow: [
                     BoxShadow(
                       color: const Color(0xFF2E7F32).withValues(alpha: 0.45),
@@ -343,10 +343,10 @@ class _SpotsScreenState extends ConsumerState<SpotsScreen>
                       height: refreshButtonSize,
                       child: RotationTransition(
                         turns: _refreshController,
-                        child: const Icon(
+                        child: Icon(
                           Icons.autorenew_rounded,
-                          size: 29,
-                          color: Colors.white,
+                          size: 26,
+                          color: theme.colorScheme.onPrimary,
                         ),
                       ),
                     ),
@@ -401,7 +401,7 @@ class _SpotCard extends ConsumerWidget {
                         child: Text(
                           modeLabel,
                           style: theme.textTheme.labelMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w900,
                             color: theme.colorScheme.primary,
                             letterSpacing: 0.6,
                           ),
@@ -416,13 +416,18 @@ class _SpotCard extends ConsumerWidget {
                       children: [
                         InkWell(
                           borderRadius: BorderRadius.circular(12),
-                          onTap: () => _openQrzProfile(context, spot.activator),
+                          onTap: () =>
+                              _openCallsignInfo(context, spot.activator),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 2),
                             child: Text(
                               spot.activator,
                               style: theme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.w700,
+                                fontSize:
+                                    (theme.textTheme.titleMedium?.fontSize ??
+                                        16) +
+                                    1,
                                 decoration: TextDecoration.underline,
                                 decorationColor: theme.colorScheme.primary
                                     .withValues(alpha: 0.45),
@@ -443,7 +448,11 @@ class _SpotCard extends ConsumerWidget {
                                   compact: true,
                                 ),
                               if (bandLabel.isNotEmpty)
-                                _SpotTag(label: bandLabel, compact: true),
+                                _SpotTag(
+                                  label: bandLabel,
+                                  compact: true,
+                                  toneColor: _bandToneColor(bandLabel, theme),
+                                ),
                             ],
                           ),
                         ],
@@ -538,7 +547,7 @@ class _SpotsFilterBar extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+        padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -551,7 +560,7 @@ class _SpotsFilterBar extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 4,
-                        vertical: 6,
+                        vertical: 4,
                       ),
                       child: Row(
                         children: [
@@ -572,12 +581,11 @@ class _SpotsFilterBar extends StatelessWidget {
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
-                                const SizedBox(height: 2),
                                 Text(
                                   resultLabel,
-                                  style: theme.textTheme.labelMedium?.copyWith(
+                                  style: theme.textTheme.labelSmall?.copyWith(
                                     color: theme.colorScheme.onSurfaceVariant,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
                               ],
@@ -606,7 +614,7 @@ class _SpotsFilterBar extends StatelessWidget {
               ],
             ),
             if (isExpanded) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Row(
                 children: [
                   Expanded(
@@ -632,8 +640,8 @@ class _SpotsFilterBar extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: _FilterMenuChip(
-                      title: 'Band',
-                      allLabel: 'Tüm bandlar',
+                      title: 'Bant',
+                      allLabel: 'Tüm bantlar',
                       options: bandOptions,
                       selectedValue: selectedBand,
                       onSelected: onBandChanged,
@@ -677,12 +685,12 @@ class _FilterMenuChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final hasSelection = selectedValue != null;
-    final displayValue = hasSelection
-        ? _labelForValue(selectedValue!)
-        : allLabel;
+    final displayValue = hasSelection ? _labelForValue(selectedValue!) : title;
 
-    return PopupMenuButton<String?>(
-      onSelected: onSelected,
+    return PopupMenuButton<String>(
+      onSelected: (value) {
+        onSelected(value == _allFilterValue ? null : value);
+      },
       position: PopupMenuPosition.under,
       tooltip: '$title filtresi',
       constraints: const BoxConstraints(minWidth: 180, maxWidth: 260),
@@ -691,8 +699,8 @@ class _FilterMenuChip extends StatelessWidget {
       ),
       itemBuilder: (context) {
         return [
-          PopupMenuItem<String?>(
-            value: null,
+          PopupMenuItem<String>(
+            value: _allFilterValue,
             height: _compactMenuItemHeight,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(
@@ -705,7 +713,7 @@ class _FilterMenuChip extends StatelessWidget {
             ),
           ),
           ...options.map(
-            (option) => PopupMenuItem<String?>(
+            (option) => PopupMenuItem<String>(
               value: option,
               height: _compactMenuItemHeight,
               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -734,36 +742,20 @@ class _FilterMenuChip extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Row(
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      displayValue,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: hasSelection
-                            ? theme.colorScheme.primary
-                            : theme.colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  displayValue,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: hasSelection
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurface,
+                  ),
                 ),
               ),
               const SizedBox(width: 6),
@@ -860,19 +852,28 @@ class _SpotCountryFlag extends StatelessWidget {
 }
 
 class _SpotTag extends StatelessWidget {
-  const _SpotTag({required this.label, this.compact = false});
+  const _SpotTag({required this.label, this.compact = false, this.toneColor});
 
   final String label;
   final bool compact;
+  final Color? toneColor;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final resolvedToneColor = toneColor;
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
+        color: resolvedToneColor != null
+            ? resolvedToneColor.withValues(alpha: 0.16)
+            : theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(_filterChipRadius),
+        border: Border.all(
+          color: resolvedToneColor != null
+              ? resolvedToneColor.withValues(alpha: 0.35)
+              : theme.colorScheme.outline.withValues(alpha: 0.16),
+        ),
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(
@@ -883,6 +884,7 @@ class _SpotTag extends StatelessWidget {
           label,
           style: theme.textTheme.labelMedium?.copyWith(
             fontWeight: FontWeight.w700,
+            color: resolvedToneColor,
           ),
         ),
       ),
@@ -974,22 +976,34 @@ class _SpotsMessage extends StatelessWidget {
 
 String _normalizedMode(String mode) {
   final upper = mode.trim().toUpperCase();
-  if (upper.isEmpty) return '';
+  if (upper.isEmpty) return _unknownModeLabel;
   if (upper.contains('FT8')) return 'FT8';
+  if (upper.contains('FT4')) return 'FT4';
   if (upper.contains('FT')) return 'FT';
   if (upper.contains('CW')) return 'CW';
+  if (upper.contains('USB') || upper.contains('LSB')) return 'SSB';
+  if (upper.contains('PHONE') || upper.contains('PH')) return 'SSB';
   if (upper.contains('SSB')) return 'SSB';
+  if (upper.contains('FM')) return 'FM';
+  if (upper.contains('AM')) return 'AM';
+  if (upper.contains('RTTY')) return 'RTTY';
+  if (upper.contains('PSK')) return 'PSK';
+  if (upper.contains('JS8')) return 'JS8';
+  if (upper.contains('SSTV')) return 'SSTV';
+  if (upper.contains('DIGI') || upper.contains('DIGITAL')) return 'DIGI';
   return upper;
 }
 
 String _modeBadgeLabel(String mode) {
-  final normalized = _normalizedMode(mode);
-  return normalized.isEmpty ? '?' : normalized;
+  return _normalizedMode(mode);
 }
 
 String _bandLabelForSpot(SpotModel spot) {
   return resolveBandLabel(rawBand: spot.band, frequency: spot.frequency);
 }
+
+final _isoCountryRegex = RegExp(r'^[A-Z]{2}$');
+final _bandMetersRegex = RegExp(r'^(\d+(?:\.\d+)?)(m|cm)$');
 
 String? _countryCodeFromReference(String reference) {
   final trimmed = reference.trim();
@@ -997,30 +1011,15 @@ String? _countryCodeFromReference(String reference) {
 
   final parts = trimmed.split('-');
   final country = parts.first.trim().toUpperCase();
-  final isIsoCountry = RegExp(r'^[A-Z]{2}$').hasMatch(country);
-  if (!isIsoCountry) return null;
+  if (!_isoCountryRegex.hasMatch(country)) return null;
 
   return country;
-}
-
-Future<void> _openQrzProfile(BuildContext context, String activator) async {
-  final trimmed = activator.trim();
-  if (trimmed.isEmpty) {
-    return;
-  }
-
-  final uri = Uri.parse('https://www.qrz.com/db/$trimmed');
-  final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
-  if (!opened && context.mounted) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('QRZ profili açılamadı.')));
-  }
 }
 
 List<SpotModel> _dedupeSpots(List<SpotModel> spots) {
   final latestByPrimaryKey = <String, SpotModel>{};
   final latestBySemanticKey = <String, SpotModel>{};
+  final latestByActivator = <String, SpotModel>{};
 
   for (final spot in spots) {
     final primaryKey = spot.spotId > 0
@@ -1040,7 +1039,16 @@ List<SpotModel> _dedupeSpots(List<SpotModel> spots) {
     }
   }
 
-  return latestBySemanticKey.values.toList(growable: false);
+  for (final spot in latestBySemanticKey.values) {
+    final callsignKey = spot.activator.trim().toUpperCase();
+    final key = callsignKey.isEmpty ? _spotSemanticKey(spot) : callsignKey;
+    final existing = latestByActivator[key];
+    if (existing == null || existing.spotTime.isBefore(spot.spotTime)) {
+      latestByActivator[key] = spot;
+    }
+  }
+
+  return latestByActivator.values.toList(growable: false);
 }
 
 String _spotSemanticKey(SpotModel spot) {
@@ -1054,6 +1062,111 @@ String _spotSemanticKey(SpotModel spot) {
   ].join('|');
 }
 
+int _compareBandLabelsDescending(String left, String right) {
+  final leftPreferredIndex = _preferredBandOrder.indexOf(left.toLowerCase());
+  final rightPreferredIndex = _preferredBandOrder.indexOf(right.toLowerCase());
+
+  final leftPreferred = leftPreferredIndex >= 0;
+  final rightPreferred = rightPreferredIndex >= 0;
+  if (leftPreferred && rightPreferred) {
+    return leftPreferredIndex.compareTo(rightPreferredIndex);
+  }
+  if (leftPreferred) return -1;
+  if (rightPreferred) return 1;
+
+  final leftMeters = _bandMeters(left);
+  final rightMeters = _bandMeters(right);
+
+  if (leftMeters != null && rightMeters != null) {
+    if (leftMeters == rightMeters) {
+      return left.compareTo(right);
+    }
+    return rightMeters.compareTo(leftMeters);
+  }
+
+  if (leftMeters != null) return -1;
+  if (rightMeters != null) return 1;
+  return left.compareTo(right);
+}
+
+const _preferredBandOrder = <String>[
+  '80m',
+  '60m',
+  '40m',
+  '30m',
+  '20m',
+  '17m',
+  '15m',
+  '12m',
+  '10m',
+  '6m',
+  '4m',
+  '2m',
+];
+
+double? _bandMeters(String rawBandLabel) {
+  final normalized = rawBandLabel.trim().toLowerCase();
+  final match = _bandMetersRegex.firstMatch(normalized);
+  if (match == null) {
+    return null;
+  }
+
+  final value = double.tryParse(match.group(1)!);
+  final unit = match.group(2);
+  if (value == null || unit == null) {
+    return null;
+  }
+
+  if (unit == 'm') {
+    return value;
+  }
+  if (unit == 'cm') {
+    return value / 100;
+  }
+  return null;
+}
+
+Color _bandToneColor(String bandLabel, ThemeData theme) {
+  switch (bandLabel.toLowerCase()) {
+    case '160m':
+      return const Color(0xFF7E57C2);
+    case '80m':
+      return const Color(0xFFD84315);
+    case '60m':
+      return const Color(0xFF00897B);
+    case '40m':
+      return const Color(0xFF1565C0);
+    case '30m':
+      return const Color(0xFF2E7D32);
+    case '20m':
+      return const Color(0xFFC2185B);
+    case '17m':
+      return const Color(0xFF5D4037);
+    case '15m':
+      return const Color(0xFF6D4C41);
+    case '12m':
+      return const Color(0xFFEF6C00);
+    case '10m':
+      return const Color(0xFF00838F);
+    case '6m':
+      return const Color(0xFF3949AB);
+    case '4m':
+      return const Color(0xFF6A1B9A);
+    case '2m':
+      return const Color(0xFF1B8F3A);
+    case '1.25m':
+      return const Color(0xFF546E7A);
+    case '70cm':
+      return const Color(0xFFAD1457);
+    case '33cm':
+      return const Color(0xFF827717);
+    case '23cm':
+      return const Color(0xFF455A64);
+    default:
+      return theme.colorScheme.primary;
+  }
+}
+
 void _openSpotOnMap(BuildContext context, WidgetRef ref, SpotModel spot) {
   FocusScope.of(context).unfocus();
   ref.read(mapFocusRequestProvider.notifier).state = MapFocusRequest(
@@ -1061,4 +1174,17 @@ void _openSpotOnMap(BuildContext context, WidgetRef ref, SpotModel spot) {
     activator: spot.activator,
   );
   ref.read(homeTabIndexProvider.notifier).state = 0;
+}
+
+Future<void> _openCallsignInfo(BuildContext context, String activator) async {
+  final callsign = activator.trim().toUpperCase();
+  if (callsign.isEmpty) {
+    return;
+  }
+
+  await Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (context) => CallsignInfoScreen(callsign: callsign),
+    ),
+  );
 }
